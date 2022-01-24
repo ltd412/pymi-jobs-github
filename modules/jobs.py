@@ -4,10 +4,17 @@ import sqlite3
 
 def crawl_web(url):
     result = []
-    r = requests.get(url)
-    data = r.json()
-    for line in data:
-        result.append((line['title'], line['html_url']))
+    page = 1
+    while True:
+        param = {"page": page}
+        r = requests.get(url, params= param)
+        data = r.json()
+        if data == []:
+            break
+        else:
+            for line in data:
+                result.append((line['title'], line['html_url']))
+        page +=1
     return result
 
 
@@ -18,14 +25,13 @@ def db():
     except sqlite3.OperationalError:
         con.execute('Delete from jobs')
     finally:
-        for i in range(1, 5):
-            url = f'https://api.github.com/repos/awesome-jobs/vietnam/issues?page={i}'
-            try:
-                data = crawl_web(url)
-                for name, url in data:
-                    con.execute('insert into jobs values (?,?)', [name, url])
-            except TypeError:
-                con = sqlite3.connect('jobs.db')
+        url = f'https://api.github.com/repos/awesome-jobs/vietnam/issues'
+        try:
+            data = crawl_web(url)
+            for name, url in data:
+                con.execute('insert into jobs values (?,?)', [name, url])
+        except TypeError:
+            con = sqlite3.connect('jobs.db')
         con.commit()
         con.close()
 
