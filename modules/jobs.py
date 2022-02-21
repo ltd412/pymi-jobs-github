@@ -18,7 +18,7 @@ def crawl_web(url):
     return result
 
 
-def db():
+def main():
     con = sqlite3.connect('jobs.db')
     try:
         con.execute('Create table jobs ("jobs", "url")')
@@ -34,16 +34,3 @@ def db():
             con = sqlite3.connect('jobs.db')
         con.commit()
         con.close()
-
-
-def main():
-    db()
-    conn = sqlite3.connect('jobs.db')
-    data = conn.execute('SELECT * from jobs')
-    jobs_db = list(data.fetchall())
-    conn.close()
-    return jobs_db
-
-
-if __name__ == "__main__":
-    main()
